@@ -1,0 +1,276 @@
+{
+  "scene": "crossing",
+  "noise": 0.8,
+  "rows": [
+    {
+      "max_age": 1,
+      "mota_at_0": 0.8958333333333334,
+      "amota": 0.8498660714285716,
+      "amotp": 0.6038714450734224,
+      "points": [
+        {
+          "recall": 0.1,
+          "threshold": 0.7000000000000001,
+          "achieved": 0.09375,
+          "motar": 0.6875,
+          "raw_motar": 0.6875,
+          "recall_gap": -0.0062500000000000056
+        },
+        {
+          "recall": 0.2,
+          "threshold": 0.64,
+          "achieved": 0.1875,
+          "motar": 0.75,
+          "raw_motar": 0.75,
+          "recall_gap": -0.012500000000000011
+        },
+        {
+          "recall": 0.3,
+          "threshold": 0.58,
+          "achieved": 0.32083333333333336,
+          "motar": 0.875,
+          "raw_motar": 0.875,
+          "recall_gap": 0.02083333333333337
+        },
+        {
+          "recall": 0.4,
+          "threshold": 0.54,
+          "achieved": 0.4083333333333333,
+          "motar": 0.8333333333333334,
+          "raw_motar": 0.8333333333333334,
+          "recall_gap": 0.008333333333333304
+        },
+        {
+          "recall": 0.5,
+          "threshold": 0.5,
+          "achieved": 0.5083333333333333,
+          "motar": 0.8625,
+          "raw_motar": 0.8625,
+          "recall_gap": 0.008333333333333304
+        },
+        {
+          "recall": 0.6,
+          "threshold": 0.44,
+          "achieved": 0.6,
+          "motar": 0.8506944444444444,
+          "raw_motar": 0.8506944444444444,
+          "recall_gap": 0.0
+        },
+        {
+          "recall": 0.7,
+          "threshold": 0.38,
+          "achieved": 0.7125,
+          "motar": 0.9017857142857144,
+          "raw_motar": 0.9017857142857144,
+          "recall_gap": 0.012500000000000067
+        },
+        {
+          "recall": 0.8,
+          "threshold": 0.34,
+          "achieved": 0.7854166666666667,
+          "motar": 0.8906249999999999,
+          "raw_motar": 0.8906249999999999,
+          "recall_gap": -0.014583333333333393
+        },
+        {
+          "recall": 0.9,
+          "threshold": 0.24,
+          "achieved": 0.8958333333333334,
+          "motar": 0.9513888888888888,
+          "raw_motar": 0.9513888888888888,
+          "recall_gap": -0.004166666666666652
+        },
+        {
+          "recall": 1.0,
+          "threshold": 0.04,
+          "achieved": 0.9479166666666666,
+          "motar": 0.8958333333333334,
+          "raw_motar": 0.8958333333333334,
+          "recall_gap": -0.05208333333333337
+        }
+      ],
+      "max_recall_gap": 0.05208333333333337
+    },
+    {
+      "max_age": 3,
+      "mota_at_0": 0.8854166666666666,
+      "amota": 0.9360937500000001,
+      "amotp": 0.5462117101943191,
+      "points": [
+        {
+          "recall": 0.1,
+          "threshold": 0.76,
+          "achieved": 0.10833333333333334,
+          "motar": 0.9791666666666666,
+          "raw_motar": 0.9791666666666666,
+          "recall_gap": 0.008333333333333331
+        },
+        {
+          "recall": 0.2,
+          "threshold": 0.72,
+          "achieved": 0.2375,
+          "motar": 1.0,
+          "raw_motar": 1.0625,
+          "recall_gap": 0.03749999999999998
+        },
+        {
+          "recall": 0.3,
+          "threshold": 0.7000000000000001,
+          "achieved": 0.2625,
+          "motar": 0.7777777777777778,
+          "raw_motar": 0.7777777777777778,
+          "recall_gap": -0.03749999999999998
+        },
+        {
+          "recall": 0.4,
+          "threshold": 0.64,
+          "achieved": 0.42083333333333334,
+          "motar": 0.953125,
+          "raw_motar": 0.953125,
+          "recall_gap": 0.020833333333333315
+        },
+        {
+          "recall": 0.5,
+          "threshold": 0.6,
+          "achieved": 0.5270833333333333,
+          "motar": 0.9833333333333333,
+          "raw_motar": 0.9833333333333333,
+          "recall_gap": 0.027083333333333348
+        },
+        {
+          "recall": 0.6,
+          "threshold": 0.58,
+          "achieved": 0.6041666666666666,
+          "motar": 0.9444444444444444,
+          "raw_motar": 0.9444444444444444,
+          "recall_gap": 0.004166666666666652
+        },
+        {
+          "recall": 0.7,
+          "threshold": 0.56,
+          "achieved": 0.6791666666666667,
+          "motar": 0.9166666666666667,
+          "raw_motar": 0.9166666666666667,
+          "recall_gap": -0.02083333333333326
+        },
+        {
+          "recall": 0.8,
+          "threshold": 0.52,
+          "achieved": 0.79375,
+          "motar": 0.9557291666666666,
+          "raw_motar": 0.9557291666666666,
+          "recall_gap": -0.006250000000000089
+        },
+        {
+          "recall": 0.9,
+          "threshold": 0.42,
+          "achieved": 0.8958333333333334,
+          "motar": 0.9652777777777778,
+          "raw_motar": 0.9652777777777778,
+          "recall_gap": -0.004166666666666652
+        },
+        {
+          "recall": 1.0,
+          "threshold": 0.04,
+          "achieved": 0.9729166666666667,
+          "motar": 0.8854166666666666,
+          "raw_motar": 0.8854166666666666,
+          "recall_gap": -0.027083333333333348
+        }
+      ],
+      "max_recall_gap": 0.03749999999999998
+    },
+    {
+      "max_age": 8,
+      "mota_at_0": 0.75,
+      "amota": 0.8863814484126984,
+      "amotp": 0.5398071855850646,
+      "points": [
+        {
+          "recall": 0.1,
+          "threshold": 0.8200000000000001,
+          "achieved": 0.12708333333333333,
+          "motar": 1.0,
+          "raw_motar": 1.1458333333333333,
+          "recall_gap": 0.02708333333333332
+        },
+        {
+          "recall": 0.2,
+          "threshold": 0.78,
+          "achieved": 0.17708333333333334,
+          "motar": 0.6770833333333333,
+          "raw_motar": 0.6770833333333333,
+          "recall_gap": -0.02291666666666667
+        },
+        {
+          "recall": 0.3,
+          "threshold": 0.74,
+          "achieved": 0.325,
+          "motar": 0.9375,
+          "raw_motar": 0.9375,
+          "recall_gap": 0.025000000000000022
+        },
+        {
+          "recall": 0.4,
+          "threshold": 0.72,
+          "achieved": 0.4125,
+          "motar": 0.90625,
+          "raw_motar": 0.90625,
+          "recall_gap": 0.012499999999999956
+        },
+        {
+          "recall": 0.5,
+          "threshold": 0.7000000000000001,
+          "achieved": 0.4625,
+          "motar": 0.825,
+          "raw_motar": 0.825,
+          "recall_gap": -0.03749999999999998
+        },
+        {
+          "recall": 0.6,
+          "threshold": 0.66,
+          "achieved": 0.5895833333333333,
+          "motar": 0.8993055555555556,
+          "raw_motar": 0.8993055555555556,
+          "recall_gap": -0.01041666666666663
+        },
+        {
+          "recall": 0.7,
+          "threshold": 0.62,
+          "achieved": 0.6979166666666666,
+          "motar": 0.9285714285714286,
+          "raw_motar": 0.9285714285714286,
+          "recall_gap": -0.002083333333333326
+        },
+        {
+          "recall": 0.8,
+          "threshold": 0.56,
+          "achieved": 0.8020833333333334,
+          "motar": 0.9401041666666666,
+          "raw_motar": 0.9401041666666666,
+          "recall_gap": 0.002083333333333326
+        },
+        {
+          "recall": 0.9,
+          "threshold": 0.5,
+          "achieved": 0.9104166666666667,
+          "motar": 1.0,
+          "raw_motar": 1.0046296296296295,
+          "recall_gap": 0.01041666666666663
+        },
+        {
+          "recall": 1.0,
+          "threshold": 0.04,
+          "achieved": 0.9729166666666667,
+          "motar": 0.75,
+          "raw_motar": 0.75,
+          "recall_gap": -0.027083333333333348
+        }
+      ],
+      "max_recall_gap": 0.03749999999999998
+    }
+  ],
+  "best_by_mota": 1,
+  "best_by_amota": 3,
+  "disagree": true
+}

@@ -1,0 +1,184 @@
+{
+  "rows": [
+    {
+      "scene": "sparse",
+      "noise": 0.5,
+      "hungarian": {
+        "mota": 0.9166666666666666,
+        "motp": 0.41756777432867537,
+        "fp": 19,
+        "fn": 8,
+        "ids": 3,
+        "matches": 352,
+        "gt": 360,
+        "recall": 0.9777777777777777,
+        "precision": 0.9487870619946092
+      },
+      "greedy": {
+        "mota": 0.9583333333333334,
+        "motp": 0.41053395509567997,
+        "fp": 6,
+        "fn": 8,
+        "ids": 1,
+        "matches": 352,
+        "gt": 360,
+        "recall": 0.9777777777777777,
+        "precision": 0.9832402234636871
+      },
+      "frames_disagreed": 6,
+      "gated_pairs_hungarian": 27,
+      "gated_pairs_greedy": 32,
+      "sacrificed": 6
+    },
+    {
+      "scene": "sparse",
+      "noise": 1.0,
+      "hungarian": {
+        "mota": 0.8027777777777778,
+        "motp": 0.8732927410169835,
+        "fp": 47,
+        "fn": 17,
+        "ids": 7,
+        "matches": 343,
+        "gt": 360,
+        "recall": 0.9527777777777777,
+        "precision": 0.8794871794871795
+      },
+      "greedy": {
+        "mota": 0.8805555555555555,
+        "motp": 0.8502032635555259,
+        "fp": 24,
+        "fn": 15,
+        "ids": 4,
+        "matches": 345,
+        "gt": 360,
+        "recall": 0.9583333333333334,
+        "precision": 0.9349593495934959
+      },
+      "frames_disagreed": 8,
+      "gated_pairs_hungarian": 37,
+      "gated_pairs_greedy": 43,
+      "sacrificed": 9
+    },
+    {
+      "scene": "crossing",
+      "noise": 0.5,
+      "hungarian": {
+        "mota": 0.9604166666666667,
+        "motp": 0.4112992076207084,
+        "fp": 8,
+        "fn": 11,
+        "ids": 0,
+        "matches": 469,
+        "gt": 480,
+        "recall": 0.9770833333333333,
+        "precision": 0.9832285115303984
+      },
+      "greedy": {
+        "mota": 0.95625,
+        "motp": 0.41753443793936484,
+        "fp": 9,
+        "fn": 11,
+        "ids": 1,
+        "matches": 469,
+        "gt": 480,
+        "recall": 0.9770833333333333,
+        "precision": 0.9811715481171548
+      },
+      "frames_disagreed": 4,
+      "gated_pairs_hungarian": 23,
+      "gated_pairs_greedy": 28,
+      "sacrificed": 5
+    },
+    {
+      "scene": "crossing",
+      "noise": 1.0,
+      "hungarian": {
+        "mota": 0.8541666666666666,
+        "motp": 0.8040761485403956,
+        "fp": 50,
+        "fn": 16,
+        "ids": 4,
+        "matches": 464,
+        "gt": 480,
+        "recall": 0.9666666666666667,
+        "precision": 0.9027237354085603
+      },
+      "greedy": {
+        "mota": 0.875,
+        "motp": 0.7908138541761957,
+        "fp": 42,
+        "fn": 15,
+        "ids": 3,
+        "matches": 465,
+        "gt": 480,
+        "recall": 0.96875,
+        "precision": 0.9171597633136095
+      },
+      "frames_disagreed": 7,
+      "gated_pairs_hungarian": 48,
+      "gated_pairs_greedy": 52,
+      "sacrificed": 8
+    },
+    {
+      "scene": "dense",
+      "noise": 0.5,
+      "hungarian": {
+        "mota": 0.94375,
+        "motp": 0.4217210323184755,
+        "fp": 32,
+        "fn": 20,
+        "ids": 2,
+        "matches": 940,
+        "gt": 960,
+        "recall": 0.9791666666666666,
+        "precision": 0.9670781893004116
+      },
+      "greedy": {
+        "mota": 0.9802083333333333,
+        "motp": 0.405329195687437,
+        "fp": 0,
+        "fn": 19,
+        "ids": 0,
+        "matches": 941,
+        "gt": 960,
+        "recall": 0.9802083333333333,
+        "precision": 1.0
+      },
+      "frames_disagreed": 11,
+      "gated_pairs_hungarian": 144,
+      "gated_pairs_greedy": 156,
+      "sacrificed": 13
+    },
+    {
+      "scene": "dense",
+      "noise": 1.0,
+      "hungarian": {
+        "mota": 0.8833333333333333,
+        "motp": 0.8001147125867104,
+        "fp": 65,
+        "fn": 40,
+        "ids": 7,
+        "matches": 920,
+        "gt": 960,
+        "recall": 0.9583333333333334,
+        "precision": 0.934010152284264
+      },
+      "greedy": {
+        "mota": 0.9145833333333333,
+        "motp": 0.7898253659017839,
+        "fp": 39,
+        "fn": 39,
+        "ids": 4,
+        "matches": 921,
+        "gt": 960,
+        "recall": 0.959375,
+        "precision": 0.959375
+      },
+      "frames_disagreed": 17,
+      "gated_pairs_hungarian": 223,
+      "gated_pairs_greedy": 229,
+      "sacrificed": 20
+    }
+  ]
+}

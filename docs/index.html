@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D multi-object tracking — where IoU runs out of road</title>
+<meta name="description" content="A 3D tracker you can break. Raise the localisation noise and watch IoU association collapse while centre distance holds — the whole pipeline runs in the browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400&display=swap">
+<style>
+:root{
+  --bg:#080B10; --panel:#101520; --sunk:#060810;
+  --ink:#E6EDF5; --ink-2:#9EACBE; --ink-3:#68768A; --rule:#1A2230; --rule-2:#27323F;
+  --accent:#39C6C0; --signal:#5A97E0; --good:#4FA36B; --bad:#D9615F; --warn:#E0A64B;
+  --sans:"Archivo",system-ui,sans-serif; --serif:"Newsreader",Georgia,serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 var(--serif)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(16px,4vw,44px)}
+a{color:var(--signal)}
+.masthead{background:#060810;border-bottom:1px solid var(--rule);padding:26px 0 30px}
+.crumb{font:400 12px/1 var(--mono);color:var(--ink-3);letter-spacing:.08em}
+h1{font:700 clamp(25px,3.6vw,40px)/1.12 var(--sans);letter-spacing:-.028em;margin:12px 0 0}
+.lede{margin:14px 0 0;max-width:66ch;color:var(--ink-2)}
+main{padding:26px 0 56px}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin-bottom:20px}
+.readout>div{background:var(--panel);padding:12px 14px}
+.k{font:500 10px/1.3 var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.v{font:600 20px/1.2 var(--mono);margin-top:6px;font-variant-numeric:tabular-nums}
+.v.accent{color:var(--accent)} .v.bad{color:var(--bad)} .v.good{color:var(--good)} .v.warn{color:var(--warn)}
+.grid{display:grid;grid-template-columns:258px minmax(0,1fr);gap:18px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--rule);padding:15px 16px}
+.panel h2{font:600 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px}
+.ctl{margin-bottom:13px}
+.ctl label{display:flex;justify-content:space-between;font:400 12px/1 var(--mono);color:var(--ink-2);margin-bottom:7px}
+.ctl b{color:var(--accent);font-weight:500}
+input[type=range]{width:100%;accent-color:var(--accent);height:18px}
+.seg{display:flex;flex-wrap:wrap;gap:5px}
+.seg button{font:500 11.5px/1 var(--mono);padding:7px 9px;border:1px solid var(--rule-2);background:none;color:var(--ink-3);cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.seg button:hover{color:var(--ink-2)}
+.stage{background:var(--panel);border:1px solid var(--rule);padding:0;overflow:hidden}
+canvas{display:block;width:100%;height:auto;background:var(--sunk)}
+.transport{display:flex;align-items:center;gap:12px;padding:11px 14px;border-top:1px solid var(--rule);flex-wrap:wrap}
+.transport button{font:500 11.5px/1 var(--mono);padding:7px 12px;border:1px solid var(--rule-2);background:none;color:var(--ink-2);cursor:pointer}
+.transport button:hover{border-color:var(--accent);color:var(--accent)}
+.transport input[type=range]{flex:1;min-width:120px}
+.frameno{font:500 11.5px/1 var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:13px;padding:10px 14px;border-top:1px solid var(--rule);font:400 11.5px/1.4 var(--mono);color:var(--ink-3)}
+.legend i{display:inline-block;width:15px;height:2px;vertical-align:middle;margin-right:6px}
+.chart{background:var(--panel);border:1px solid var(--rule);padding:14px 16px;margin-top:18px}
+.chart svg{display:block;width:100%;height:auto}
+.note{margin-top:20px;padding:15px 17px;background:var(--panel);border:1px solid var(--rule);border-left:2px solid var(--accent)}
+.note p{margin:0 0 10px} .note p:last-child{margin:0}
+.note h3{font:600 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:0 0 11px}
+code{font:400 13.5px/1.5 var(--mono);color:var(--ink)}
+footer{border-top:1px solid var(--rule);padding:22px 0 40px;font:400 12.5px/1.7 var(--mono);color:var(--ink-3)}
+@media (max-width:860px){ .grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<header class="masthead"><div class="wrap">
+  <div class="crumb">mdzayd1003 / 3d-multi-object-tracking</div>
+  <h1>Where IoU association runs out of road</h1>
+  <p class="lede">A Kalman-filter tracker over oriented 3D boxes, running live in this page — scene generation,
+  the filter, both assignment solvers and CLEAR MOT, all computed here, none of it replayed.
+  Drag <b>localisation noise</b> up and watch the two association costs come apart.</p>
+</div></header>
+
+<main class="wrap">
+
+  <div class="readout">
+    <div><div class="k">MOTA</div><div class="v accent" id="r-mota">—</div></div>
+    <div><div class="k">MOTP (m)</div><div class="v" id="r-motp">—</div></div>
+    <div><div class="k">ID switches</div><div class="v bad" id="r-ids">—</div></div>
+    <div><div class="k">False pos.</div><div class="v warn" id="r-fp">—</div></div>
+    <div><div class="k">Misses</div><div class="v" id="r-fn">—</div></div>
+    <div><div class="k">Recall</div><div class="v good" id="r-recall">—</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <h2>Detector</h2>
+      <div class="ctl"><label>Localisation noise <b id="l-noise">0.25 m</b></label>
+        <input type="range" id="noise" min="0" max="200" value="25"></div>
+      <div class="ctl"><label>Miss rate <b id="l-miss">12%</b></label>
+        <input type="range" id="miss" min="0" max="45" value="12"></div>
+      <div class="ctl"><label>Clutter / frame <b id="l-fp">0.6</b></label>
+        <input type="range" id="fp" min="0" max="30" value="6"></div>
+
+      <h2 style="margin-top:20px">Scene</h2>
+      <div class="seg" id="scene-seg">
+        <button data-v="sparse">sparse</button>
+        <button data-v="crossing" aria-pressed="true">crossing</button>
+        <button data-v="dense">dense</button>
+      </div>
+
+      <h2 style="margin-top:20px">Association cost</h2>
+      <div class="seg" id="metric-seg">
+        <button data-v="dist" aria-pressed="true">centre distance</button>
+        <button data-v="iou">3D IoU</button>
+      </div>
+
+      <h2 style="margin-top:20px">Solver</h2>
+      <div class="seg" id="solver-seg">
+        <button data-v="hungarian" aria-pressed="true">Hungarian</button>
+        <button data-v="greedy">greedy</button>
+      </div>
+
+      <h2 style="margin-top:20px">Lifecycle</h2>
+      <div class="ctl"><label>max_age <b id="l-age">3</b></label>
+        <input type="range" id="age" min="0" max="12" value="3"></div>
+      <div class="ctl"><label>min_hits <b id="l-hits">2</b></label>
+        <input type="range" id="hits" min="1" max="6" value="2"></div>
+    </div>
+
+    <div>
+      <div class="stage">
+        <canvas id="bev" width="1600" height="760"></canvas>
+        <div class="transport">
+          <button id="play">pause</button>
+          <input type="range" id="frame" min="0" max="59" value="0">
+          <span class="frameno" id="l-frame">frame 00 / 59</span>
+        </div>
+        <div class="legend">
+          <span><i style="background:#3C4655"></i>ground truth</span>
+          <span><i style="background:var(--warn)"></i>detections</span>
+          <span><i style="background:var(--accent)"></i>confirmed tracks (colour = id)</span>
+          <span><i style="background:var(--bad)"></i>ID switch this frame</span>
+        </div>
+      </div>
+
+      <div class="chart">
+        <h2 style="font:600 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px">
+          MOTA against localisation noise, both costs — recomputed for the current scene</h2>
+        <svg id="curve" viewBox="0 0 760 240" preserveAspectRatio="xMidYMid meet" role="img"
+             aria-label="MOTA versus localisation noise for IoU and centre-distance association"></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <h3>What the sweep shows</h3>
+    <p>Below about half a metre of localisation error the two costs are interchangeable — IoU is marginally
+    ahead, because requiring physical overlap rejects clutter that a 4&nbsp;m distance gate lets through.</p>
+    <p>Past that, IoU falls away and cannot be tuned back. Its loosest possible gate is <code>1 − IoU ≤ 0.999</code>,
+    which means “admit any pair of boxes that touch at all”; there is nothing beyond it. For a 4×2&nbsp;m car that
+    ceiling is worth roughly a 3&nbsp;m centre gate, and the extra metre a distance gate can reach — which no
+    IoU threshold can — is worth <b>+0.27 MOTA</b> on the repository's sweep.</p>
+    <p>The usual explanation — that IoU stops working because true pairs stop overlapping — is not what is
+    happening here. At the noise where IoU has already lost a third of its MOTA, only <b>3.7%</b> of true
+    (object, detection) pairs have zero IoU, and the cost still ranks the correct detection first over 99% of
+    the time. The cost is not wrong; its support is bounded by the size of the objects.</p>
+  </div>
+
+</main>
+
+<footer class="wrap">
+  Everything on this page is computed in your browser by <code>docs/mot.js</code>, a port of the Python
+  package. CI checks the two against each other on every push: 33,851 comparisons, every assignment,
+  track identity and ID-switch count identical, worst floating-point difference 3.6e−15.
+  <br>Source: <a href="https://github.com/mdzayd1003/3d-multi-object-tracking">github.com/mdzayd1003/3d-multi-object-tracking</a>
+</footer>
+
+<script type="module">
+import { makeScene, runTracker, clearMot, centerDistance } from "./mot.js";
+
+const $ = (id) => document.getElementById(id);
+const state = {
+  scene: "crossing", metric: "dist", solver: "hungarian",
+  noise: 0.25, miss: 0.12, fp: 0.6, age: 3, hits: 2,
+  frame: 0, playing: true,
+};
+
+let scene = null, outputs = null, report = null, switchFrames = new Set();
+
+/* Stable per-id colour: golden-angle hue rotation keeps neighbouring ids far
+   apart, so an ID switch is visible as a colour change rather than a subtle one. */
+const idColor = (id) => `hsl(${(id * 137.508) % 360} 62% 58%)`;
+
+function recompute() {
+  scene = makeScene({
+    name: state.scene, seed: 7, nFrames: 60,
+    noise: state.noise, missRate: state.miss, fpPerFrame: state.fp,
+  });
+  outputs = runTracker(scene, {
+    metric: state.metric, solver: state.solver,
+    maxAge: state.age, minHits: state.hits,
+  });
+  report = clearMot(scene, outputs, "dist");
+
+  // Mark the frames where a ground truth object changes hypothesis, so the
+  // canvas can flag them as they happen instead of only in the totals.
+  switchFrames = new Set();
+  let prev = new Map();
+  outputs.forEach((o, t) => {
+    const gt = scene.frames[t].gt, cur = new Map();
+    for (const [g, gb] of gt) {
+      let best = null, bd = 2.0;
+      for (const [h, hb] of o.boxes) {
+        const d = centerDistance(gb, hb);
+        if (d < bd) { bd = d; best = h; }
+      }
+      if (best !== null) {
+        cur.set(g, best);
+        if (prev.has(g) && prev.get(g) !== best) switchFrames.add(t);
+      }
+    }
+    prev = new Map([...prev, ...cur]);
+  });
+
+  $("r-mota").textContent = report.mota.toFixed(3);
+  $("r-motp").textContent = report.motp.toFixed(2);
+  $("r-ids").textContent = report.ids;
+  $("r-fp").textContent = report.fp;
+  $("r-fn").textContent = report.fn;
+  $("r-recall").textContent = (report.recall * 100).toFixed(1) + "%";
+  drawCurve();
+}
+
+/* ---------- bird's-eye view ---------- */
+
+const cv = $("bev"), ctx = cv.getContext("2d");
+
+function drawBox(box, stroke, width, fill) {
+  const c = Math.cos(box[3]), s = Math.sin(box[3]);
+  const dx = box[4] / 2, dy = box[5] / 2;
+  const pts = [[dx, dy], [-dx, dy], [-dx, -dy], [dx, -dy]]
+    .map(([lx, ly]) => [box[0] + lx * c - ly * s, box[1] + lx * s + ly * c]);
+  ctx.beginPath();
+  pts.forEach(([x, y], i) => (i ? ctx.lineTo(...world(x, y)) : ctx.moveTo(...world(x, y))));
+  ctx.closePath();
+  if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+  ctx.strokeStyle = stroke; ctx.lineWidth = width; ctx.stroke();
+  // A short spur along the heading, so yaw is readable at a glance.
+  const [hx, hy] = world(box[0] + c * box[4] * 0.62, box[1] + s * box[4] * 0.62);
+  const [cx, cy] = world(box[0], box[1]);
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(hx, hy); ctx.stroke();
+}
+
+let view = { minX: -50, maxX: 50, minY: -30, maxY: 30 };
+function world(x, y) {
+  const sx = (x - view.minX) / (view.maxX - view.minX) * cv.width;
+  const sy = cv.height - (y - view.minY) / (view.maxY - view.minY) * cv.height;
+  return [sx, sy];
+}
+
+function fitView() {
+  let minY = 1e9, maxY = -1e9;
+  for (const f of scene.frames) for (const b of f.gt.values()) {
+    minY = Math.min(minY, b[1]); maxY = Math.max(maxY, b[1]);
+  }
+  const pad = Math.max(6, (maxY - minY) * 0.12);
+  minY -= pad; maxY += pad;
+  const aspect = cv.width / cv.height;
+  const spanY = maxY - minY, spanX = spanY * aspect;
+  const cx = 0;
+  view = { minX: cx - spanX / 2, maxX: cx + spanX / 2, minY, maxY };
+}
+
+function draw() {
+  const t = state.frame;
+  const f = scene.frames[t], o = outputs[t];
+  ctx.clearRect(0, 0, cv.width, cv.height);
+
+  // grid, every 10 m
+  ctx.strokeStyle = "#0F1622"; ctx.lineWidth = 2;
+  for (let x = Math.ceil(view.minX / 10) * 10; x < view.maxX; x += 10) {
+    ctx.beginPath(); ctx.moveTo(...world(x, view.minY)); ctx.lineTo(...world(x, view.maxY)); ctx.stroke();
+  }
+  for (let y = Math.ceil(view.minY / 10) * 10; y < view.maxY; y += 10) {
+    ctx.beginPath(); ctx.moveTo(...world(view.minX, y)); ctx.lineTo(...world(view.maxX, y)); ctx.stroke();
+  }
+
+  for (const b of f.gt.values()) drawBox(b, "#3C4655", 3, null);
+  for (const d of f.detections) {
+    const a = 0.25 + 0.65 * d.score;
+    drawBox(d.box, `rgba(224,166,75,${a.toFixed(3)})`, 2, null);
+  }
+  for (const [id, b] of o.boxes) drawBox(b, idColor(id), 4.5, idColor(id) + "22");
+
+  // track ids
+  ctx.font = "500 22px ui-monospace, Menlo, monospace";
+  for (const [id, b] of o.boxes) {
+    const [x, y] = world(b[0], b[1]);
+    ctx.fillStyle = idColor(id);
+    ctx.fillText("#" + id, x + 10, y - 12);
+  }
+
+  if (switchFrames.has(t)) {
+    ctx.strokeStyle = "#D9615F"; ctx.lineWidth = 7;
+    ctx.strokeRect(3.5, 3.5, cv.width - 7, cv.height - 7);
+    ctx.fillStyle = "#D9615F";
+    ctx.font = "600 24px ui-monospace, Menlo, monospace";
+    ctx.fillText("ID SWITCH", 26, 44);
+  }
+
+  $("l-frame").textContent = `frame ${String(t).padStart(2, "0")} / ${scene.frames.length - 1}`;
+  $("frame").value = t;
+}
+
+/* ---------- the noise sweep, recomputed live ---------- */
+
+function drawCurve() {
+  const svg = $("curve");
+  const W = 760, H = 240, L = 52, R = 14, T = 14, B = 34;
+  const noises = [0.1, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+  const series = {};
+  for (const metric of ["dist", "iou"]) {
+    series[metric] = noises.map((nz) => {
+      const sc = makeScene({ name: state.scene, seed: 7, nFrames: 40, noise: nz,
+                             missRate: state.miss, fpPerFrame: state.fp });
+      const rep = clearMot(sc, runTracker(sc, { metric, solver: state.solver,
+                                                maxAge: state.age, minHits: state.hits }), "dist");
+      return Math.max(-1, rep.mota);
+    });
+  }
+  const x = (i) => L + i / (noises.length - 1) * (W - L - R);
+  const y = (v) => T + (1 - (v + 1) / 2) * (H - T - B);
+
+  const path = (vals) => vals.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
+  const dots = (vals, c) => vals.map((v, i) =>
+    `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3.5" fill="${c}"/>`).join("");
+
+  let g = "";
+  for (const v of [-1, -0.5, 0, 0.5, 1]) {
+    g += `<line x1="${L}" y1="${y(v)}" x2="${W - R}" y2="${y(v)}" stroke="#1A2230" stroke-width="1"/>`;
+    g += `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end" fill="#68768A"
+           font-family="ui-monospace,Menlo,monospace" font-size="11">${v.toFixed(1)}</text>`;
+  }
+  noises.forEach((nz, i) => {
+    g += `<text x="${x(i)}" y="${H - 12}" text-anchor="middle" fill="#68768A"
+           font-family="ui-monospace,Menlo,monospace" font-size="11">${nz}</text>`;
+  });
+  g += `<text x="${(L + W - R) / 2}" y="${H - 1}" text-anchor="middle" fill="#68768A"
+         font-family="ui-monospace,Menlo,monospace" font-size="10.5">localisation noise (m, std. dev.)</text>`;
+  g += `<line x1="${L}" y1="${y(0)}" x2="${W - R}" y2="${y(0)}" stroke="#27323F" stroke-width="1.5"/>`;
+  g += `<path d="${path(series.dist)}" fill="none" stroke="#39C6C0" stroke-width="2.5"/>` + dots(series.dist, "#39C6C0");
+  g += `<path d="${path(series.iou)}" fill="none" stroke="#D9615F" stroke-width="2.5" stroke-dasharray="5 4"/>` + dots(series.iou, "#D9615F");
+  g += `<text x="${W - R - 4}" y="${y(series.dist.at(-1)) - 10}" text-anchor="end" fill="#39C6C0"
+         font-family="ui-monospace,Menlo,monospace" font-size="12">centre distance</text>`;
+  g += `<text x="${W - R - 4}" y="${y(series.iou.at(-1)) + 18}" text-anchor="end" fill="#D9615F"
+         font-family="ui-monospace,Menlo,monospace" font-size="12">3D IoU</text>`;
+  svg.innerHTML = g;
+}
+
+/* ---------- wiring ---------- */
+
+function seg(id, key, after) {
+  $(id).addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-v]");
+    if (!b) return;
+    [...e.currentTarget.querySelectorAll("button")].forEach((n) =>
+      n.setAttribute("aria-pressed", String(n === b)));
+    state[key] = b.dataset.v;
+    after();
+  });
+}
+
+const full = () => { recompute(); fitView(); draw(); };
+const soft = () => { recompute(); draw(); };
+
+seg("scene-seg", "scene", full);
+seg("metric-seg", "metric", soft);
+seg("solver-seg", "solver", soft);
+
+const sliders = [
+  ["noise", (v) => v / 100, (v) => v.toFixed(2) + " m", "l-noise"],
+  ["miss",  (v) => v / 100, (v) => (v * 100).toFixed(0) + "%", "l-miss"],
+  ["fp",    (v) => v / 10,  (v) => v.toFixed(1), "l-fp"],
+  ["age",   (v) => v,       (v) => String(v), "l-age"],
+  ["hits",  (v) => v,       (v) => String(v), "l-hits"],
+];
+for (const [id, parse, fmt, label] of sliders) {
+  $(id).addEventListener("input", (e) => {
+    const v = parse(Number(e.target.value));
+    state[id] = v;
+    $(label).textContent = fmt(v);
+    soft();
+  });
+}
+
+$("frame").addEventListener("input", (e) => {
+  state.frame = Number(e.target.value);
+  state.playing = false;
+  $("play").textContent = "play";
+  draw();
+});
+$("play").addEventListener("click", () => {
+  state.playing = !state.playing;
+  $("play").textContent = state.playing ? "pause" : "play";
+});
+
+let last = 0;
+function tick(now) {
+  if (state.playing && now - last > 110) {
+    last = now;
+    state.frame = (state.frame + 1) % scene.frames.length;
+    draw();
+  }
+  requestAnimationFrame(tick);
+}
+
+full();
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
